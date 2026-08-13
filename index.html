@@ -22,7 +22,7 @@
   --line-strong:rgba(255,255,255,0.16);
   --paper-line:rgba(18,20,26,0.12);
   --radius:2px;
-  --wrap:1180px;
+  --wrap:1600px;
 }
 
 *{box-sizing:border-box; margin:0; padding:0;}
@@ -41,7 +41,8 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 
-.wrap{max-width:var(--wrap); margin:0 auto; padding:0 32px;}
+.wrap{max-width:var(--wrap); margin:0 auto; padding:0 56px;}
+@media (max-width:1200px){.wrap{padding:0 40px;}}
 @media (max-width:640px){.wrap{padding:0 20px;}}
 
 h1,h2,h3,h4{font-family:'Fraunces', serif; font-weight:600; line-height:1.05; letter-spacing:-0.01em;}
@@ -350,9 +351,14 @@ header{
 .drag-hint{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--slate-dim); display:flex; align-items:center; gap:8px;}
 .drag-hint svg{width:16px; height:16px;}
 
-.filmstrip-wrap{position:relative;}
+.filmstrip-wrap{
+  position:relative;
+  width:100vw;
+  margin-left:calc(50% - 50vw);
+  margin-right:calc(50% - 50vw);
+}
 .filmstrip{
-  display:flex; gap:22px; overflow-x:auto; padding:8px 4px 26px;
+  display:flex; gap:22px; overflow-x:auto; padding:8px calc(50vw - 50%) 26px;
   scrollbar-width:none; cursor:grab; user-select:none;
 }
 .filmstrip.dragging{cursor:grabbing;}
