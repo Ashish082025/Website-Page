@@ -464,28 +464,6 @@ header{
 .case .brand{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--slate); letter-spacing:0.03em; padding-top:18px; border-top:1px solid var(--line);}
 .case .brand b{color:var(--paper); font-weight:500;}
 
-/* ---------- PROOF WALL (masonry) ---------- */
-.proof-wall{column-count:4; column-gap:20px;}
-@media (max-width:1000px){.proof-wall{column-count:3;}}
-@media (max-width:760px){.proof-wall{column-count:2;}}
-@media (max-width:480px){.proof-wall{column-count:1;}}
-.proof-item{
-  break-inside:avoid; margin-bottom:20px; border-radius:14px; overflow:hidden;
-  background:var(--paper); color:var(--ink);
-  transition:transform .3s ease, box-shadow .3s ease;
-}
-.proof-item:hover{transform:translateY(-4px); box-shadow:0 20px 40px -20px rgba(0,0,0,0.35);}
-.proof-item img{width:100%; display:block; object-fit:cover;}
-.proof-item.tall img{aspect-ratio:3/4;}
-.proof-item.wide img{aspect-ratio:4/3;}
-.proof-item.square img{aspect-ratio:1/1;}
-.proof-caption{padding:16px 18px;}
-.proof-caption .cat{font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--signal-dim); margin-bottom:6px;}
-.proof-caption h4{font-family:'Fraunces',serif; font-size:15.5px; font-weight:600; margin-bottom:4px; line-height:1.2;}
-.proof-caption p{font-size:12.5px; color:var(--slate-dim); line-height:1.4;}
-.proof-item.image-only{background:none; padding:0;}
-.proof-item.image-only img{border-radius:14px;}
-
 /* ---------- TESTIMONIALS ---------- */
 .testis{display:grid; grid-template-columns:repeat(3,1fr); gap:26px;}
 @media (max-width:900px){.testis{grid-template-columns:1fr;}}
@@ -923,85 +901,6 @@ footer{padding:70px 0 40px; border-top:1px solid var(--line);}
           <div class="metric-label">ROAS improvement, 3.5 → 6.2</div>
           <div class="brand"><b>Fern &amp; Co</b> — media + CRO overhaul</div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PROOF WALL -->
-  <section class="section tight on-dark-alt" id="proofwall">
-    <div class="wrap">
-      <div class="section-head reveal">
-        <h2>Brands we've shipped for.</h2>
-        <p>A wall of the work — storefronts, creative, and product launches.</p>
-      </div>
-      <div class="proof-wall reveal">
-
-        <div class="proof-item tall">
-          <img src="https://picsum.photos/seed/manifest-skin1/500/700" alt="Skincare product photography">
-          <div class="proof-caption">
-            <div class="cat">Skincare · D2C</div>
-            <h4>Jones Road</h4>
-            <p>Had the most sold SKU of the entire Shopify ecosystem on BFCM.</p>
-          </div>
-        </div>
-
-        <div class="proof-item image-only wide">
-          <img src="https://picsum.photos/seed/manifest-golf1/600/450" alt="Golf apparel lifestyle photography">
-        </div>
-
-        <div class="proof-item">
-          <img src="https://picsum.photos/seed/manifest-malbon/500/380" alt="Apparel brand product photography">
-          <div class="proof-caption">
-            <div class="cat">Apparel</div>
-            <h4>Malbon</h4>
-            <p>36% increase in revenue per session in Q3.</p>
-          </div>
-        </div>
-
-        <div class="proof-item tall">
-          <img src="https://picsum.photos/seed/manifest-supplement1/500/650" alt="Supplement product photography">
-          <div class="proof-caption">
-            <div class="cat">Wellness · Supplements</div>
-            <h4>Fatty 15</h4>
-            <p>14+ influencer landing pages, 30+ projects delivered, 39% subscription rate increase.</p>
-          </div>
-        </div>
-
-        <div class="proof-item image-only square">
-          <img src="https://picsum.photos/seed/manifest-sneaker1/500/500" alt="Footwear product photography">
-        </div>
-
-        <div class="proof-item">
-          <img src="https://picsum.photos/seed/manifest-wellness1/500/380" alt="Wellness brand photography">
-          <div class="proof-caption">
-            <div class="cat">Wellness</div>
-            <h4>Elle Macpherson Wellness</h4>
-            <p>Full creative direction for the brand's wellness line launch.</p>
-          </div>
-        </div>
-
-        <div class="proof-item tall">
-          <img src="https://picsum.photos/seed/manifest-mens1/500/680" alt="Menswear lifestyle photography">
-          <div class="proof-caption">
-            <div class="cat">Apparel · Menswear</div>
-            <h4>Wild Roman</h4>
-            <p>Full Shopify store built from zero — designed, developed, and launched in time for holiday.</p>
-          </div>
-        </div>
-
-        <div class="proof-item image-only wide">
-          <img src="https://picsum.photos/seed/manifest-street1/600/440" alt="Streetwear lifestyle photography">
-        </div>
-
-        <div class="proof-item">
-          <img src="https://picsum.photos/seed/manifest-womens1/500/400" alt="Women's fashion editorial photography">
-          <div class="proof-caption">
-            <div class="cat">Apparel · Fashion</div>
-            <h4>Loom &amp; Field</h4>
-            <p>Editorial-led product photography lifted AOV 19% across the fall collection.</p>
-          </div>
-        </div>
-
       </div>
     </div>
   </section>
