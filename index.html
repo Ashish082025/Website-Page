@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manifest — We build the store, the send, and the sale.</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root{
+  --ink:#12141a;
+  --ink-soft:#1a1d25;
+  --ink-soft2:#20232c;
+  --paper:#f3efe6;
+  --paper-dim:#e8e2d3;
+  --signal:#ff5a2b;
+  --signal-dim:#c8451e;
+  --moss:#4c7767;
+  --slate:#9498a2;
+  --slate-dim:#666a75;
+  --line:rgba(255,255,255,0.09);
+  --line-strong:rgba(255,255,255,0.16);
+  --paper-line:rgba(18,20,26,0.12);
+  --radius:2px;
+  --wrap:1180px;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important;}
+}
+
+body{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:'IBM Plex Sans', sans-serif;
+  font-size:16px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+
+.wrap{max-width:var(--wrap); margin:0 auto; padding:0 32px;}
+@media (max-width:640px){.wrap{padding:0 20px;}}
+
+h1,h2,h3,h4{font-family:'Fraunces', serif; font-weight:600; line-height:1.05; letter-spacing:-0.01em;}
+.mono{font-family:'IBM Plex Mono', monospace;}
+a{color:inherit; text-decoration:none;}
+button{font-family:inherit; cursor:pointer;}
+
+.eyebrow{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11.5px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--signal);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:18px;
+}
+.eyebrow::before{content:"";width:7px;height:7px;background:var(--signal); display:inline-block; border-radius:1px; animation:eyebrowPulse 1.8s ease-in-out infinite;}
+@keyframes eyebrowPulse{0%,100%{opacity:1; box-shadow:0 0 0 0 rgba(255,90,43,0.5);} 50%{opacity:0.55; box-shadow:0 0 0 4px rgba(255,90,43,0);}}
+.eyebrow.on-paper{color:var(--signal-dim);}
+
+:focus-visible{outline:2px solid var(--signal); outline-offset:3px;}
+
+/* ---------- GRAIN ---------- */
+body::before{
+  content:"";
+  position:fixed; inset:0; z-index:999; pointer-events:none;
+  opacity:0.035; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- CUSTOM CURSOR (manifest stamp) ---------- */
+.stamp-cursor{
+  position:fixed; top:0; left:0; width:34px; height:34px;
+  border:1px solid var(--signal); border-radius:50%;
+  pointer-events:none; z-index:998;
+  transform:translate(-50%,-50%);
+  transition:width .18s, height .18s, border-color .18s, background .18s, opacity .25s;
+  mix-blend-mode:difference;
+  opacity:0;
+}
+.stamp-cursor::before{
+  content:"";
+  position:absolute; top:50%; left:50%; width:3px; height:3px;
+  background:var(--signal); border-radius:50%; transform:translate(-50%,-50%);
+}
+.stamp-cursor.ready{opacity:1;}
+.stamp-cursor.pop{width:44px; height:44px; border-color:var(--signal); background:transparent; mix-blend-mode:normal;}
+@media (hover:none), (pointer:coarse){ .stamp-cursor{display:none;} }
+
+/* ---------- SPOTLIGHT (dark sections) ---------- */
+.spotlit{position:relative; isolation:isolate;}
+.spotlight{
+  position:absolute; inset:0; z-index:0; pointer-events:none;
+  opacity:0; transition:opacity .4s ease;
+  background:radial-gradient(480px circle at var(--sx,50%) var(--sy,50%), rgba(255,90,43,0.10), transparent 65%);
+}
+.spotlit:hover .spotlight{opacity:1;}
+.spotlit > .wrap{position:relative; z-index:1;}
+
+/* ---------- COUNT-UP NUMBERS ---------- */
+[data-countup]{font-variant-numeric:tabular-nums;}
+
+/* ---------- MAGNETIC BUTTONS ---------- */
+.magnetic{will-change:transform;}
+
+/* ---------- NAV ACTIVE INDICATOR ---------- */
+.navlinks a{padding-bottom:4px;}
+.navlinks a .ul{
+  position:absolute; left:0; right:100%; bottom:-1px; height:1px;
+  background:var(--signal); transition:right .3s cubic-bezier(.4,0,.2,1);
+}
+.navlinks a.current{color:var(--paper);}
+.navlinks a.current .ul{right:0;}
+
+/* ---------- NAV ---------- */
+header{
+  position:sticky; top:0; z-index:100;
+  background:rgba(18,20,26,0.86);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.nav{
+  display:flex; align-items:center; justify-content:space-between;
+  height:76px;
+}
+.logo{
+  font-family:'Fraunces', serif; font-weight:700; font-size:21px;
+  letter-spacing:-0.01em;
+  display:flex; align-items:center; gap:9px;
+}
+.logo .dot{width:8px; height:8px; background:var(--signal); border-radius:1px; display:inline-block;}
+.navlinks{display:flex; gap:34px; align-items:center;}
+.navlinks a{
+  font-size:14px; color:var(--slate); transition:color .2s;
+  position:relative;
+}
+.navlinks a:hover{color:var(--paper);}
+.navcta{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:12.5px;
+  letter-spacing:0.04em;
+  background:var(--signal);
+  color:var(--ink);
+  padding:11px 20px;
+  border-radius:2px;
+  font-weight:500;
+  transition:background .2s, transform .2s;
+  border:none;
+  white-space:nowrap;
+}
+.navcta:hover{background:#ff7248; transform:translateY(-1px);}
+.navtoggle{display:none; background:none; border:none; color:var(--paper); font-size:22px;}
+
+@media (max-width:900px){
+  .navlinks{display:none;}
+  .navtoggle{display:block;}
+}
+
+/* ---------- HERO ---------- */
+.hero{
+  padding:100px 0 90px;
+  position:relative;
+  overflow:hidden;
+  border-bottom:1px solid var(--line);
+}
+.hero::before{
+  content:"";
+  position:absolute; top:-200px; right:-160px;
+  width:600px; height:600px;
+  background:radial-gradient(circle, rgba(255,90,43,0.14), transparent 70%);
+  pointer-events:none;
+}
+.hero-grid{
+  display:grid;
+  grid-template-columns:1.15fr 0.85fr;
+  gap:70px;
+  align-items:start;
+  position:relative;
+}
+@media (max-width:960px){.hero-grid{grid-template-columns:1fr; gap:48px;}}
+
+.hero h1{
+  font-size:clamp(38px, 5.2vw, 66px);
+  color:var(--paper);
+  margin-bottom:26px;
+}
+.hero h1 em{
+  font-style:italic; color:var(--signal); font-weight:500;
+}
+.hero p.lede{
+  font-size:18px; color:var(--slate); max-width:520px; margin-bottom:34px;
+}
+.hero-ctas{display:flex; align-items:center; gap:22px; flex-wrap:wrap;}
+.btn-primary{
+  background:var(--signal); color:var(--ink);
+  padding:15px 26px; border-radius:2px; border:none;
+  font-weight:500; font-size:15px;
+  display:inline-flex; align-items:center; gap:10px;
+  transition:background .2s, transform .2s;
+}
+.btn-primary:hover{background:#ff7248; transform:translateY(-1px);}
+.hero-microcopy{font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--slate-dim); letter-spacing:0.02em;}
+
+/* manifest ledger card */
+.ledger{
+  background:var(--paper);
+  color:var(--ink);
+  border-radius:3px;
+  overflow:hidden;
+  box-shadow:0 30px 60px -20px rgba(0,0,0,0.5);
+  transform:perspective(1000px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+  transition:transform .15s ease-out;
+  will-change:transform;
+}
+.ledger-head{
+  padding:18px 22px;
+  border-bottom:1px dashed var(--paper-line);
+  display:flex; justify-content:space-between; align-items:center;
+}
+.ledger-head .title{font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; font-weight:500;}
+.ledger-head .stamp{
+  font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:0.1em;
+  color:var(--moss); border:1px solid var(--moss); padding:3px 8px; border-radius:20px;
+  transform:rotate(-3deg);
+}
+.ledger-row{
+  display:flex; justify-content:space-between; align-items:baseline;
+  padding:18px 22px; border-bottom:1px solid var(--paper-line);
+}
+.ledger-row:last-child{border-bottom:none;}
+.ledger-row .num{font-family:'Fraunces', serif; font-size:26px; font-weight:600;}
+.ledger-row .label{font-size:12.5px; color:#555; text-align:right; max-width:180px;}
+
+/* ---------- SPLIT-FLAP BOARD ---------- */
+.board-band{
+  background:var(--ink-soft); border-bottom:1px solid var(--line); border-top:1px solid var(--line);
+  padding:26px 0;
+}
+.board{
+  display:flex; align-items:center; gap:22px; overflow-x:auto; scrollbar-width:none;
+}
+.board::-webkit-scrollbar{display:none;}
+.board-label{
+  font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--slate-dim); white-space:nowrap; flex:0 0 auto; padding-right:18px; border-right:1px dashed var(--line-strong);
+}
+.flap-row{display:flex; gap:8px; flex:0 0 auto;}
+.flap{
+  position:relative; width:19px; height:26px; perspective:80px; flex:0 0 auto;
+}
+.flap-face{
+  position:absolute; inset:0; background:var(--ink);
+  border:1px solid var(--line-strong); border-radius:2px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'IBM Plex Mono',monospace; font-size:14px; font-weight:500; color:var(--paper);
+  overflow:hidden;
+}
+.flap-face::after{content:""; position:absolute; left:0; right:0; top:50%; height:1px; background:rgba(0,0,0,0.45);}
+.flap.blank .flap-face{color:var(--slate-dim);}
+.flap.flip .flap-face{animation:flapflip .32s ease;}
+@keyframes flapflip{
+  0%{transform:rotateX(0deg);}
+  45%{transform:rotateX(-90deg);}
+  55%{transform:rotateX(-90deg);}
+  100%{transform:rotateX(0deg);}
+}
+.board-status{
+  margin-left:auto; flex:0 0 auto; display:flex; align-items:center; gap:8px;
+  font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--moss); white-space:nowrap;
+}
+.board-status .blip{width:6px; height:6px; border-radius:50%; background:var(--moss); animation:blip 1.6s infinite;}
+@keyframes blip{0%,100%{opacity:1;}50%{opacity:0.25;}}
+@media (max-width:760px){.board-label{display:none;}}
+
+/* ---------- SECTION HEADERS ---------- */
+.section{padding:110px 0;}
+.section.tight{padding:90px 0;}
+.section-head{
+  display:flex; justify-content:space-between; align-items:flex-end;
+  gap:40px; margin-bottom:56px;
+  border-bottom:1px solid var(--line);
+  padding-bottom:32px;
+}
+.section-head h2{font-size:clamp(30px,3.6vw,44px); color:var(--paper); max-width:560px;}
+.section-head p{color:var(--slate); max-width:340px; font-size:15px; padding-bottom:4px;}
+@media (max-width:760px){.section-head{flex-direction:column; align-items:flex-start; gap:16px;}}
+
+.on-dark-alt{background:var(--ink-soft);}
+
+/* ---------- PAPER SECTIONS (two-tone alternation) ---------- */
+.paper-section{background:var(--paper); color:var(--ink);}
+.paper-section .section-head{border-bottom-color:var(--paper-line);}
+.paper-section .section-head h2{color:var(--ink);}
+.paper-section .section-head p{color:var(--slate-dim);}
+.paper-section .eyebrow{color:var(--signal-dim);}
+
+.paper-section .holds{background:var(--paper-line); border-color:var(--paper-line);}
+.paper-section .hold{background:var(--ink);}
+.paper-section .hold:hover{background:var(--ink-soft2);}
+
+.paper-section .cases{background:var(--paper-line); border-color:var(--paper-line);}
+
+.paper-section .route-line{background:repeating-linear-gradient(to bottom, var(--paper-line) 0, var(--paper-line) 6px, transparent 6px, transparent 12px);}
+.paper-section .waypoint h3{color:var(--ink);}
+.paper-section .waypoint p.desc{color:var(--slate-dim);}
+.paper-section .waypoint.active h3{color:var(--signal-dim);}
+
+.paper-section .faq-list{border-top-color:var(--paper-line);}
+.paper-section .faq-item{border-bottom-color:var(--paper-line);}
+.paper-section .faq-q{color:var(--ink);}
+.paper-section .faq-a p{color:var(--slate-dim);}
+
+.paper-section .comp th, .paper-section .comp td{border-bottom-color:var(--paper-line);}
+.paper-section .comp td.row-label{color:var(--ink);}
+.paper-section .comp td.them{color:var(--slate-dim);}
+.paper-section .comp tbody tr:hover{background:rgba(18,20,26,0.03);}
+
+/* ---------- SERVICES (holds) ---------- */
+.holds{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
+@media (max-width:900px){.holds{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:560px){.holds{grid-template-columns:1fr;}}
+.hold{
+  background:var(--ink); padding:38px 30px; min-height:280px;
+  display:flex; flex-direction:column;
+  transition:background .25s;
+}
+.hold:hover{background:var(--ink-soft2);}
+.hold .hnum{font-family:'IBM Plex Mono',monospace; color:var(--signal); font-size:12px; letter-spacing:0.1em; margin-bottom:22px;}
+.hold h3{font-size:21px; color:var(--paper); margin-bottom:14px;}
+.hold p{color:var(--slate); font-size:14.5px; margin-bottom:20px; flex-grow:1;}
+.hold .tags{display:flex; flex-wrap:wrap; gap:8px;}
+.hold .tags span{font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--slate-dim); border:1px solid var(--line-strong); padding:4px 8px; border-radius:20px;}
+
+/* ---------- THE WORK (signature interactive) ---------- */
+.work-controls{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px; margin-bottom:34px;}
+.tabs{display:flex; gap:8px; flex-wrap:wrap;}
+.tab{
+  font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.04em;
+  padding:9px 16px; border:1px solid var(--line-strong); border-radius:20px;
+  color:var(--slate); background:transparent; transition:all .2s;
+}
+.tab:hover{color:var(--paper); border-color:var(--slate);}
+.tab.active{background:var(--paper); color:var(--ink); border-color:var(--paper);}
+.drag-hint{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--slate-dim); display:flex; align-items:center; gap:8px;}
+.drag-hint svg{width:16px; height:16px;}
+
+.filmstrip-wrap{position:relative;}
+.filmstrip-wrap::before, .filmstrip-wrap::after{
+  content:""; position:absolute; top:0; bottom:26px; width:70px; z-index:2; pointer-events:none;
+}
+.filmstrip-wrap::before{left:0; background:linear-gradient(to right, var(--ink-soft) 0%, transparent 100%);}
+.filmstrip-wrap::after{right:0; background:linear-gradient(to left, var(--ink-soft) 0%, transparent 100%);}
+.filmstrip{
+  display:flex; gap:22px; overflow-x:auto; padding:8px 4px 26px;
+  scrollbar-width:none; cursor:grab; user-select:none;
+}
+.filmstrip.dragging{cursor:grabbing;}
+.filmstrip::-webkit-scrollbar{display:none;}
+
+.piece{
+  flex:0 0 auto; width:270px; background:var(--paper); color:var(--ink);
+  border-radius:3px; overflow:hidden; box-shadow:0 22px 44px -18px rgba(0,0,0,0.55);
+  display:flex; flex-direction:column;
+  transform:rotate(var(--tilt,0deg));
+  transition:transform .3s;
+}
+.piece:hover{transform:rotate(0deg) translateY(-4px);}
+.piece .tag-strip{
+  padding:12px 16px; border-bottom:1px dashed var(--paper-line);
+  display:flex; justify-content:space-between; align-items:center;
+  font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:#666;
+}
+.piece .tag-strip .kind{color:var(--signal-dim); font-weight:500;}
+.piece .viewport{height:340px; overflow:hidden; position:relative; background:var(--paper-dim);}
+.piece .scrollcontent{position:absolute; top:0; left:0; right:0; transition:transform 3.2s cubic-bezier(.4,0,.2,1);}
+
+/* generic mock content blocks used inside pieces */
+.mock-hero{padding:26px 20px; text-align:center; border-bottom:1px solid var(--paper-line);}
+.mock-hero .brand{font-family:'Fraunces',serif; font-weight:700; font-size:15px; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:10px;}
+.mock-hero .headline{font-family:'Fraunces',serif; font-size:22px; font-weight:600; margin-bottom:10px; line-height:1.15;}
+.mock-hero .sub{font-size:11.5px; color:#666; margin-bottom:16px;}
+.mock-hero .cbtn{display:inline-block; background:var(--ink); color:var(--paper); font-family:'IBM Plex Mono',monospace; font-size:10.5px; padding:9px 16px; border-radius:2px;}
+.mock-swatch{height:150px; background:linear-gradient(135deg, var(--sw1,#d8cdb8), var(--sw2,#a9b6a2));}
+.mock-block{padding:20px;}
+.mock-block .kicker{font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.1em; color:var(--signal-dim); margin-bottom:8px;}
+.mock-block h4{font-family:'Fraunces',serif; font-size:16px; margin-bottom:8px;}
+.mock-block p{font-size:11.5px; color:#666; line-height:1.55;}
+.mock-block.alt{background:var(--ink); color:var(--paper);}
+.mock-block.alt .kicker{color:var(--signal);}
+.mock-block.alt p{color:var(--slate);}
+.mock-code{
+  background:var(--ink); color:#8fdca0; font-family:'IBM Plex Mono',monospace; font-size:10px;
+  padding:18px; line-height:1.7;
+}
+.mock-card-row{display:flex; gap:10px; padding:16px 20px;}
+.mock-card-row div{flex:1; height:70px; background:var(--paper-line); border-radius:2px;}
+.mock-stat-strip{display:flex; border-top:1px solid var(--paper-line); border-bottom:1px solid var(--paper-line);}
+.mock-stat-strip div{flex:1; padding:16px 10px; text-align:center; border-right:1px solid var(--paper-line);}
+.mock-stat-strip div:last-child{border-right:none;}
+.mock-stat-strip .n{font-family:'Fraunces',serif; font-weight:600; font-size:18px;}
+.mock-stat-strip .l{font-family:'IBM Plex Mono',monospace; font-size:8.5px; color:#777; text-transform:uppercase; margin-top:3px;}
+.mock-ad{padding:24px 20px; text-align:center;}
+.mock-ad .badge{display:inline-block; background:var(--signal); color:var(--ink); font-family:'IBM Plex Mono',monospace; font-size:9.5px; padding:4px 10px; border-radius:20px; margin-bottom:14px;}
+.mock-ad h4{font-family:'Fraunces',serif; font-size:20px; margin-bottom:10px;}
+.mock-ad p{font-size:11px; color:#666; margin-bottom:14px;}
+
+.piece .caption{padding:14px 16px; font-size:12px; color:#555; border-top:1px solid var(--paper-line);}
+.piece .caption b{color:var(--ink);}
+
+/* ---------- PROCESS / ROUTE ---------- */
+.route{position:relative; padding-left:2px;}
+.route-line{
+  position:absolute; left:19px; top:14px; bottom:14px; width:1px;
+  background:repeating-linear-gradient(to bottom, var(--line-strong) 0, var(--line-strong) 6px, transparent 6px, transparent 12px);
+}
+.route-progress{
+  position:absolute; left:19px; top:14px; width:1px; height:0%;
+  background:var(--signal); transition:height .25s linear;
+  box-shadow:0 0 10px 0 rgba(255,90,43,0.6);
+}
+.waypoint .pin{transition:border-color .3s, color .3s, background .3s;}
+.waypoint.active .pin{border-color:var(--signal); color:var(--signal); background:var(--ink-soft2);}
+.waypoint.active h3{color:var(--paper);}
+.waypoint .pin-check{opacity:0; transition:opacity .2s;}
+.waypoint.done .pin-check{opacity:1;}
+.waypoint{display:grid; grid-template-columns:40px 1fr; gap:26px; padding:0 0 56px;}
+.waypoint:last-child{padding-bottom:0;}
+.waypoint .pin{
+  width:40px; height:40px; border-radius:50%; background:var(--ink-soft2);
+  border:1px solid var(--line-strong);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--signal);
+  z-index:1;
+}
+.waypoint-body{display:grid; grid-template-columns:1fr 1fr; gap:30px; align-items:start;}
+@media (max-width:760px){.waypoint-body{grid-template-columns:1fr;}}
+.waypoint h3{font-size:23px; color:var(--paper); margin-bottom:6px;}
+.waypoint .when{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--signal); margin-bottom:14px; display:block;}
+.waypoint p.desc{color:var(--slate); font-size:14.5px; margin-bottom:0;}
+.waypoint .deliverable{
+  background:var(--ink-soft); border:1px solid var(--line); border-radius:2px; padding:18px 20px;
+}
+.waypoint .deliverable .lbl{font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.08em; color:var(--slate-dim); text-transform:uppercase; margin-bottom:8px;}
+.waypoint .deliverable .val{font-size:14px; color:var(--paper);}
+
+/* ---------- COMPARISON TABLE ---------- */
+.comp{width:100%; border-collapse:collapse; font-size:14.5px;}
+.comp th, .comp td{padding:16px 18px; text-align:left; border-bottom:1px solid var(--line);}
+.comp th{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--slate-dim); font-weight:500;}
+.comp td.row-label{color:var(--paper); font-weight:500;}
+.comp td.us{color:var(--signal); font-weight:500;}
+.comp td.them{color:var(--slate-dim);}
+.comp tbody tr:hover{background:rgba(255,255,255,0.02);}
+@media (max-width:700px){.comp{font-size:12.5px;} .comp th, .comp td{padding:12px 8px;}}
+
+/* ---------- CASE STUDIES ---------- */
+.cases{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
+@media (max-width:900px){.cases{grid-template-columns:1fr;}}
+.case{background:var(--ink); padding:36px 30px;}
+.case .cat{font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--slate-dim); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:18px;}
+.case .metric{font-family:'Fraunces',serif; font-size:50px; font-weight:600; color:var(--signal); line-height:1; margin-bottom:8px;}
+.case .metric-label{font-size:13px; color:var(--paper); margin-bottom:22px;}
+.case .brand{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--slate); letter-spacing:0.03em; padding-top:18px; border-top:1px solid var(--line);}
+.case .brand b{color:var(--paper); font-weight:500;}
+
+/* ---------- TESTIMONIALS ---------- */
+.testis{display:grid; grid-template-columns:repeat(3,1fr); gap:26px;}
+@media (max-width:900px){.testis{grid-template-columns:1fr;}}
+.testi{background:var(--paper); color:var(--ink); border-radius:3px; padding:30px 26px;}
+.testi .quote{font-family:'Fraunces',serif; font-size:17px; line-height:1.4; margin-bottom:20px;}
+.testi .who{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#666;}
+.testi .who b{color:var(--ink); font-family:'IBM Plex Sans',sans-serif; font-weight:600;}
+
+/* ---------- FAQ ---------- */
+.faq-list{border-top:1px solid var(--line);}
+.faq-item{border-bottom:1px solid var(--line);}
+.faq-q{
+  width:100%; background:none; border:none; color:var(--paper);
+  display:flex; justify-content:space-between; align-items:center;
+  padding:24px 4px; text-align:left; font-size:16.5px; font-family:'Fraunces',serif; font-weight:500;
+}
+.faq-q .plus{font-family:'IBM Plex Mono',monospace; color:var(--signal); font-size:20px; transition:transform .25s;}
+.faq-item.open .plus{transform:rotate(45deg);}
+.faq-a{max-height:0; overflow:hidden; transition:max-height .3s ease;}
+.faq-a p{color:var(--slate); font-size:14.5px; padding:0 4px 24px; max-width:640px;}
+
+/* ---------- CTA ---------- */
+.cta-band{
+  background:var(--signal); color:var(--ink);
+  padding:80px 0; text-align:center;
+}
+.cta-band h2{font-size:clamp(28px,4vw,46px); margin-bottom:18px;}
+.cta-band p{font-size:15.5px; margin-bottom:30px; opacity:0.85;}
+.btn-dark{background:var(--ink); color:var(--paper); padding:16px 30px; border-radius:2px; font-weight:500; display:inline-flex; gap:10px; align-items:center; border:none; font-size:15px; transition:transform .2s;}
+.btn-dark:hover{transform:translateY(-1px);}
+
+/* ---------- FOOTER ---------- */
+footer{padding:70px 0 40px; border-top:1px solid var(--line);}
+.foot-grid{display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:40px; margin-bottom:60px;}
+@media (max-width:760px){.foot-grid{grid-template-columns:1fr 1fr; row-gap:36px;}}
+.foot-grid h5{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--slate-dim); margin-bottom:16px;}
+.foot-grid ul{list-style:none;}
+.foot-grid li{margin-bottom:10px;}
+.foot-grid a{color:var(--slate); font-size:14px; transition:color .2s;}
+.foot-grid a:hover{color:var(--paper);}
+.foot-bottom{display:flex; justify-content:space-between; align-items:center; padding-top:28px; border-top:1px solid var(--line); flex-wrap:wrap; gap:14px;}
+.foot-bottom p{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--slate-dim);}
+
+/* reveal on scroll */
+.reveal{opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s ease;}
+.reveal.in{opacity:1; transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="stamp-cursor" id="stampCursor"></div>
+
+<header>
+  <div class="wrap nav">
+    <a href="#top" class="logo"><span class="dot"></span>MANIFEST</a>
+    <nav class="navlinks">
+      <a href="#services">Services<span class="ul"></span></a>
+      <a href="#work">The Work<span class="ul"></span></a>
+      <a href="#process">Process<span class="ul"></span></a>
+      <a href="#cases">Case Studies<span class="ul"></span></a>
+      <a href="#faq">FAQ<span class="ul"></span></a>
+    </nav>
+    <a href="#cta" class="navcta magnetic">Book a Growth Call</a>
+    <button class="navtoggle" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero spotlit">
+    <div class="spotlight"></div>
+    <div class="wrap hero-grid">
+      <div>
+        <div class="eyebrow">Manifest No. 2026‑014 — cleared for growth</div>
+        <h1>We build the store,<br>the send, and <em>the sale.</em></h1>
+        <p class="lede">One embedded team running your Shopify storefront, your email &amp; CRM, and your paid channels — accountable to a single number: revenue.</p>
+        <div class="hero-ctas">
+          <a href="#cta" class="btn-primary magnetic">Get a Growth Audit →</a>
+          <span class="hero-microcopy">FREE 20‑MIN DIAGNOSTIC · ANSWERED IN 48 HRS</span>
+        </div>
+      </div>
+      <div class="ledger reveal">
+        <div class="ledger-head">
+          <span class="title">Cargo Manifest</span>
+          <span class="stamp">✓ Verified</span>
+        </div>
+        <div class="ledger-row"><span class="num" data-countup data-end="120" data-suffix="+">0</span><span class="label">Shopify storefronts shipped</span></div>
+        <div class="ledger-row"><span class="num" data-countup data-end="41" data-suffix=" mo">0</span><span class="label">Average client retention</span></div>
+        <div class="ledger-row"><span class="num" data-countup data-end="80" data-prefix="$" data-suffix="M+">0</span><span class="label">Client revenue under management</span></div>
+        <div class="ledger-row"><span class="num" data-countup data-end="4" data-suffix="">0</span><span class="label">Disciplines, one accountable team</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MANIFEST BOARD (split-flap) -->
+  <section class="board-band">
+    <div class="wrap">
+      <div class="board" id="flapBoard">
+        <span class="board-label">On the manifest today</span>
+        <div class="board-status"><span class="blip"></span>LIVE</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="section paper-section" id="services">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2>Four holds. One manifest.</h2>
+        <p>Not a vendor stack — every capability sits under one roof, one scorecard, one team accountable to your revenue.</p>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="holds reveal">
+        <div class="hold">
+          <span class="hnum">HOLD 01</span>
+          <h3>Storefront &amp; App</h3>
+          <p>Shopify builds, theme rebuilds, and continuous CRO. Your store is a growth machine, not a brochure.</p>
+          <div class="tags"><span>Shopify Plus</span><span>CRO</span><span>Headless</span></div>
+        </div>
+        <div class="hold">
+          <span class="hnum">HOLD 02</span>
+          <h3>Email &amp; CRM</h3>
+          <p>Flows, campaigns, and segmentation that turn a mailing list into a second revenue channel.</p>
+          <div class="tags"><span>Klaviyo</span><span>Lifecycle</span><span>SMS</span></div>
+        </div>
+        <div class="hold">
+          <span class="hnum">HOLD 03</span>
+          <h3>Performance Media</h3>
+          <p>Full‑funnel paid media across Meta, Google, and YouTube — optimised for net margin, not just ROAS.</p>
+          <div class="tags"><span>Meta</span><span>Google</span><span>Creative Testing</span></div>
+        </div>
+        <div class="hold">
+          <span class="hnum">HOLD 04</span>
+          <h3>Ops &amp; Analytics</h3>
+          <p>Daily dashboards, weekly reviews, and a data layer that tells you what's actually working.</p>
+          <div class="tags"><span>Attribution</span><span>Reporting</span><span>Forecasting</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE WORK -->
+  <section class="section on-dark-alt spotlit" id="work">
+    <div class="spotlight"></div>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2>Every shipment, inspected.</h2>
+        <p>Real sites, sends, and ad creative we've shipped for clients. Hold your pointer on a piece to read it in full.</p>
+      </div>
+
+      <div class="work-controls reveal">
+        <div class="tabs" role="tablist">
+          <button class="tab active" data-filter="all">All Work</button>
+          <button class="tab" data-filter="site">Storefronts</button>
+          <button class="tab" data-filter="email">Email</button>
+          <button class="tab" data-filter="ad">Ad Creative</button>
+        </div>
+        <div class="drag-hint">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 12h8M8 12l3-3M8 12l3 3M16 12l-3-3M16 12l-3 3"/></svg>
+          <span id="dragHintText">Auto-scrolling · hover to pause</span>
+        </div>
+      </div>
+
+      <div class="filmstrip-wrap reveal">
+        <div class="filmstrip" id="filmstrip">
+
+          <!-- SITE 1 -->
+          <div class="piece" data-kind="site" style="--tilt:-1.4deg">
+            <div class="tag-strip"><span class="kind">Storefront</span><span>Oak &amp; Ash</span></div>
+            <div class="viewport"><div class="scrollcontent">
+              <div class="mock-hero"><div class="brand">OAK &amp; ASH</div><div class="headline">Skincare, minus the routine.</div><div class="sub">3‑step system for busy mornings</div><div class="cbtn">Shop the System</div></div>
+              <div class="mock-swatch" style="--sw1:#e7ded0; --sw2:#b7a98d;"></div>
+              <div class="mock-block"><div class="kicker">Full theme rebuild</div><h4>Mobile speed 12 → 74</h4><p>Rebuilt from scratch on Shopify Plus, cutting load time from 4.8s to 1.1s and lifting mobile conversion 22%.</p></div>
+              <div class="mock-stat-strip"><div><div class="n">22%</div><div class="l">CVR lift</div></div><div><div class="n">1.1s</div><div class="l">Load time</div></div><div><div class="n">74</div><div class="l">Speed score</div></div></div>
+              <div class="mock-block"><h4>Before / after</h4><p>Legacy theme buried the product story below the fold. New PDP leads with routine, ingredients, and a 3‑step visual — no scrolling required to understand the offer.</p></div>
+            </div></div>
+            <div class="caption"><b>Oak &amp; Ash</b> — full storefront rebuild, Shopify Plus</div>
+          </div>
+
+          <!-- EMAIL 1 -->
+          <div class="piece" data-kind="email" style="--tilt:1.1deg">
+            <div class="tag-strip"><span class="kind">Welcome Flow</span><span>Northfield</span></div>
+            <div class="viewport"><div class="scrollcontent">
+              <div class="mock-block alt"><div class="kicker">Email 1 of 4</div><h4>Welcome to Northfield.</h4><p>You just joined 40,000 people who take their coffee seriously. Here's where to start.</p></div>
+              <div class="mock-card-row"><div></div><div></div></div>
+              <div class="mock-block"><div class="kicker">Subject line</div><h4>"Your first bag ships free."</h4><p>Open rate 61% · Click rate 14.2% — tested against 3 subject line variants over two weeks.</p></div>
+              <div class="mock-swatch" style="--sw1:#c9b79c; --sw2:#7c5c3e;"></div>
+              <div class="mock-block"><h4>Flow result</h4><p>4‑email welcome series now drives 18% of first‑month revenue from new subscribers, up from 6% on the old single‑email welcome.</p></div>
+            </div></div>
+            <div class="caption"><b>Northfield Coffee</b> — welcome flow redesign, Klaviyo</div>
+          </div>
+
+          <!-- AD 1 -->
+          <div class="piece" data-kind="ad" style="--tilt:-0.8deg">
+            <div class="tag-strip"><span class="kind">Ad Creative</span><span>Vessel</span></div>
+            <div class="viewport"><div class="scrollcontent">
+              <div class="mock-ad"><span class="badge">Meta · Static</span><h4>Sleep like it's a supplement.</h4><p>Because it is.</p></div>
+              <div class="mock-swatch" style="--sw1:#e3ccc0; --sw2:#a2665a;"></div>
+              <div class="mock-block"><div class="kicker">Hook variant B</div><h4>3.2x ROAS</h4><p>Testimonial‑led hook outperformed product‑led creative by 3.2x on cold audiences, now the primary prospecting ad.</p></div>
+              <div class="mock-block alt"><div class="kicker">Testing note</div><h4>14 hooks tested</h4><p>Rotated weekly across Meta and YouTube Shorts; losing creative retired within 72 hours of underperforming baseline.</p></div>
+            </div></div>
+            <div class="caption"><b>Vessel Supplements</b> — prospecting creative, Meta</div>
+          </div>
+
+          <!-- SITE 2 -->
+          <div class="piece" data-kind="site" style="--tilt:1.6deg">
+            <div class="tag-strip"><span class="kind">Storefront</span><span>Fern &amp; Co</span></div>
+            <div class="viewport"><div class="scrollcontent">
+              <div class="mock-hero"><div class="brand">FERN &amp; CO</div><div class="headline">Apparel, built for the field.</div><div class="sub">New arrivals, restocked weekly</div><div class="cbtn">Shop New Arrivals</div></div>
+              <div class="mock-swatch" style="--sw1:#cdd6c4; --sw2:#5c6f52;"></div>
+              <div class="mock-block"><div class="kicker">Headless migration</div><h4>Zero‑downtime cutover</h4><p>Migrated from a legacy platform to Shopify headless with zero checkout downtime across a 6‑figure BFCM weekend.</p></div>
+              <div class="mock-stat-strip"><div><div class="n">0</div><div class="l">Downtime</div></div><div><div class="n">31%</div><div class="l">AOV lift</div></div><div><div class="n">6 wks</div><div class="l">Build time</div></div></div>
+            </div></div>
+            <div class="caption"><b>Fern &amp; Co</b> — platform migration, headless Shopify</div>
+          </div>
+
+          <!-- EMAIL 2 -->
+          <div class="piece" data-kind="email" style="--tilt:-1.2deg">
+            <div class="tag-strip"><span class="kind">Win‑back</span><span>Tide Table</span></div>
+            <div class="viewport"><div class="scrollcontent">
+              <div class="mock-block alt"><div class="kicker">Win‑back series</div><h4>We saved your size.</h4><p>Your usual is almost gone — and we noticed you haven't been back in a while.</p></div>
+              <div class="mock-swatch" style="--sw1:#bcd3d6; --sw2:#3f6b73;"></div>
+              <div class="mock-block"><h4>Segment logic</h4><p>Targets lapsed customers at 90/150/210 days with escalating offers, filtered to exclude anyone already on an active discount.</p></div>
+              <div class="mock-card-row"><div></div><div></div><div></div></div>
+              <div class="mock-block"><div class="kicker">Result</div><h4>$4.80 per recipient</h4><p>Recovered revenue per email sent, now running as an always‑on flow rather than a one‑off campaign.</p></div>
+            </div></div>
+            <div class="caption"><b>Tide Table Swim</b> — win‑back flow, Klaviyo</div>
+          </div>
+
+          <!-- AD 2 -->
+          <div class="piece" data-kind="ad" style="--tilt:0.9deg">
+            <div class="tag-strip"><span class="kind">Ad Creative</span><span>Loom</span></div>
+            <div class="viewport"><div class="scrollcontent">
+              <div class="mock-ad"><span class="badge">Google · Shopping</span><h4>Loom Weighted Blanket</h4><p>Rated 4.8 across 3,200 reviews</p></div>
+              <div class="mock-swatch" style="--sw1:#dcd3c4; --sw2:#8a7a5f;"></div>
+              <div class="mock-block"><div class="kicker">Feed optimisation</div><h4>Title &amp; image test</h4><p>Rewrote 400+ product titles for search intent and swapped lifestyle images for on‑white — CTR up 19%.</p></div>
+              <div class="mock-block alt"><div class="kicker">Result</div><h4>2.1x ROAS</h4><p>Shopping feed now the single highest‑margin acquisition channel, ahead of Meta prospecting.</p></div>
+            </div></div>
+            <div class="caption"><b>Loom Home Goods</b> — shopping feed rebuild, Google</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="section paper-section" id="process">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2>The route.</h2>
+        <p>Four waypoints, ninety days. You know exactly what you're signing up for before we start.</p>
+      </div>
+      <div class="route reveal" id="routeTrack">
+        <div class="route-line"></div>
+        <div class="route-progress" id="routeProgress"></div>
+
+        <div class="waypoint">
+          <div class="pin">01</div>
+          <div class="waypoint-body">
+            <div>
+              <span class="when">DAYS 1–20 · DEPART</span>
+              <h3>Diagnose &amp; embed</h3>
+              <p class="desc">We join your Slack, audit every channel, and find the leaks before touching anything.</p>
+            </div>
+            <div class="deliverable"><div class="lbl">Deliverable</div><div class="val">Revenue leak report + 90‑day growth plan with channel targets</div></div>
+          </div>
+        </div>
+
+        <div class="waypoint">
+          <div class="pin">02</div>
+          <div class="waypoint-body">
+            <div>
+              <span class="when">DAYS 21–50 · LOAD</span>
+              <h3>Build &amp; launch</h3>
+              <p class="desc">Storefront, email flows, and paid campaigns go live. Baselines get locked.</p>
+            </div>
+            <div class="deliverable"><div class="lbl">Deliverable</div><div class="val">Live channels across storefront, CRM, and paid — baseline ROAS locked</div></div>
+          </div>
+        </div>
+
+        <div class="waypoint">
+          <div class="pin">03</div>
+          <div class="waypoint-body">
+            <div>
+              <span class="when">DAYS 51–80 · IN TRANSIT</span>
+              <h3>Optimise &amp; scale</h3>
+              <p class="desc">Daily ROAS loops, CRO tests on PDP and checkout, and weekly P&amp;L reviews.</p>
+            </div>
+            <div class="deliverable"><div class="lbl">Deliverable</div><div class="val">Month‑over‑month revenue trajectory, compounding across channels</div></div>
+          </div>
+        </div>
+
+        <div class="waypoint">
+          <div class="pin">04</div>
+          <div class="waypoint-body">
+            <div>
+              <span class="when">DAYS 81–90 · DELIVERED</span>
+              <h3>Review &amp; roadmap</h3>
+              <p class="desc">Full performance review against baseline, and a year‑ahead growth plan.</p>
+            </div>
+            <div class="deliverable"><div class="lbl">Deliverable</div><div class="val">Full performance pack + optimised roadmap for year two</div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON -->
+  <section class="section on-dark-alt tight spotlit">
+    <div class="spotlight"></div>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2>Manifest vs. the usual agency.</h2>
+        <p>We're operators who've run our own P&amp;L — not consultants who report on someone else's.</p>
+      </div>
+      <div class="reveal" style="overflow-x:auto;">
+        <table class="comp">
+          <thead><tr><th>&nbsp;</th><th>Typical agency</th><th>Manifest</th></tr></thead>
+          <tbody>
+            <tr><td class="row-label">Channels covered</td><td class="them">One, sometimes two</td><td class="us">Storefront, email, paid — one team</td></tr>
+            <tr><td class="row-label">Embedded in your team</td><td class="them">Occasional check‑ins</td><td class="us">Your Slack, your standups</td></tr>
+            <tr><td class="row-label">Reporting cadence</td><td class="them">Monthly deck</td><td class="us">Daily dashboard, weekly review</td></tr>
+            <tr><td class="row-label">Scored on</td><td class="them">Impressions, clicks</td><td class="us">Net revenue, unit economics</td></tr>
+            <tr><td class="row-label">Engagement model</td><td class="them">Open‑ended retainer</td><td class="us">Defined 90‑day sprint</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- CASE STUDIES -->
+  <section class="section paper-section" id="cases">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2>Real numbers. Real shipments.</h2>
+        <p>Outcomes shared with each brand's consent.</p>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="cases reveal">
+        <div class="case">
+          <div class="cat">Skincare · D2C</div>
+          <div class="metric"><span data-countup data-end="14" data-suffix="×">0</span></div>
+          <div class="metric-label">Revenue growth in 18 months</div>
+          <div class="brand"><b>Oak &amp; Ash</b> — storefront rebuild + retention program</div>
+        </div>
+        <div class="case">
+          <div class="cat">Food &amp; Beverage</div>
+          <div class="metric"><span data-countup data-end="28" data-suffix="%">0</span></div>
+          <div class="metric-label">Category market share reached</div>
+          <div class="brand"><b>Northfield Coffee</b> — full‑funnel channel build</div>
+        </div>
+        <div class="case">
+          <div class="cat">Apparel · Q‑Commerce</div>
+          <div class="metric"><span data-countup data-end="6" data-suffix="×">0</span></div>
+          <div class="metric-label">ROAS improvement, 3.5 → 6.2</div>
+          <div class="brand"><b>Fern &amp; Co</b> — media + CRO overhaul</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="section on-dark-alt tight">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2>Don't take our word for it.</h2>
+        <p>&nbsp;</p>
+      </div>
+      <div class="testis reveal">
+        <div class="testi">
+          <p class="quote">"They embedded as one unified team and took full ownership from day one. We finally stopped managing vendors and started managing outcomes."</p>
+          <div class="who"><b>Priya Nandan</b> — Founder, Oak &amp; Ash</div>
+        </div>
+        <div class="testi">
+          <p class="quote">"The daily dashboard changed how we make decisions. We know within 24 hours if something isn't working — not next quarter."</p>
+          <div class="who"><b>Marcus Feld</b> — CEO, Northfield Coffee</div>
+        </div>
+        <div class="testi">
+          <p class="quote">"Zero downtime on our biggest weekend of the year. That alone justified the switch. Everything since has been upside."</p>
+          <div class="who"><b>Rosa Villanueva</b> — Ops Lead, Fern &amp; Co</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section paper-section" id="faq">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2>Answers before you have to ask.</h2>
+        <p>&nbsp;</p>
+      </div>
+      <div class="faq-list reveal">
+        <div class="faq-item">
+          <button class="faq-q">How is Manifest different from a typical agency? <span class="plus">+</span></button>
+          <div class="faq-a"><p>An agency manages campaigns and reports metrics. We run your commerce channels end to end — storefront, email, and paid — as one embedded team accountable to revenue, not activity.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">What's the commercial model? <span class="plus">+</span></button>
+          <div class="faq-a"><p>A fixed 90‑day sprint fee, with optional KPI‑linked incentives once baselines are locked. No open‑ended hourly retainer.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">What's our exposure if this doesn't work out? <span class="plus">+</span></button>
+          <div class="faq-a"><p>We start with a 20‑day diagnostic before any full engagement. At day 20 you get a full audit with zero further obligation.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">How quickly can you start? <span class="plus">+</span></button>
+          <div class="faq-a"><p>The diagnostic begins within 5–7 business days of agreement. We join your Slack on day one; full operations typically launch by week four.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Do you work across every product category? <span class="plus">+</span></button>
+          <div class="faq-a"><p>We specialise in commerce operations — storefront, retention, and paid media — rather than any single category. The playbooks are category‑agnostic and adapted to your customer.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-band" id="cta">
+    <div class="wrap">
+      <h2>Tell us about the brand.<br>We'll take it from there.</h2>
+      <p>Free 20‑minute diagnostic · No commitment · Answered within 48 hours</p>
+      <a href="#" class="btn-dark magnetic">Book a Growth Call →</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a href="#top" class="logo" style="margin-bottom:14px; display:flex;"><span class="dot"></span>MANIFEST</a>
+        <p style="color:var(--slate); font-size:13.5px; max-width:260px;">Storefront, email, and paid media — run by one embedded team, accountable to revenue.</p>
+      </div>
+      <div>
+        <h5>Services</h5>
+        <ul>
+          <li><a href="#services">Storefront &amp; App</a></li>
+          <li><a href="#services">Email &amp; CRM</a></li>
+          <li><a href="#services">Performance Media</a></li>
+          <li><a href="#services">Ops &amp; Analytics</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Company</h5>
+        <ul>
+          <li><a href="#work">The Work</a></li>
+          <li><a href="#process">Process</a></li>
+          <li><a href="#cases">Case Studies</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:hello@manifest.co">hello@manifest.co</a></li>
+          <li><a href="tel:+10000000000">+1 (000) 000‑0000</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <p>© 2026 MANIFEST — COMMERCE OPERATIONS</p>
+      <p>ALL SYSTEMS CLEARED</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+// mobile nav (simple toggle -> just scrolls links into a stacked reveal; kept minimal)
+document.querySelector('.navtoggle').addEventListener('click', function(){
+  var links = document.querySelector('.navlinks');
+  var visible = links.style.display === 'flex';
+  links.style.display = visible ? 'none' : 'flex';
+  links.style.cssText += visible ? '' : 'position:absolute; top:76px; left:0; right:0; background:#12141a; flex-direction:column; padding:24px 32px; border-bottom:1px solid rgba(255,255,255,0.09); gap:18px;';
+});
+
+// FAQ accordion
+document.querySelectorAll('.faq-item').forEach(function(item){
+  var q = item.querySelector('.faq-q');
+  var a = item.querySelector('.faq-a');
+  q.addEventListener('click', function(){
+    var isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(function(o){
+      o.classList.remove('open');
+      o.querySelector('.faq-a').style.maxHeight = null;
+    });
+    if(!isOpen){
+      item.classList.add('open');
+      a.style.maxHeight = a.scrollHeight + 'px';
+    }
+  });
+});
+
+// Work tabs filter
+var tabs = document.querySelectorAll('.tab');
+tabs.forEach(function(tab){
+  tab.addEventListener('click', function(){
+    tabs.forEach(function(t){t.classList.remove('active');});
+    tab.classList.add('active');
+    var f = tab.getAttribute('data-filter');
+    document.querySelectorAll('.piece').forEach(function(p){
+      var show = (f === 'all' || p.getAttribute('data-kind') === f);
+      p.style.display = show ? 'flex' : 'none';
+    });
+  });
+});
+
+// Filmstrip: duplicate pieces once for a seamless loop, then auto-scroll like a conveyor
+var strip = document.getElementById('filmstrip');
+var stripWrap = document.querySelector('.filmstrip-wrap');
+var dragHintText = document.getElementById('dragHintText');
+(function(){
+  var originals = Array.prototype.slice.call(strip.querySelectorAll('.piece'));
+  originals.forEach(function(p){
+    var clone = p.cloneNode(true);
+    clone.setAttribute('aria-hidden', 'true');
+    clone.querySelectorAll('a, button').forEach(function(el){ el.tabIndex = -1; });
+    strip.appendChild(clone);
+  });
+  // re-bind hover-to-reveal on the clones too
+  strip.querySelectorAll('.piece').forEach(function(piece){
+    var viewport = piece.querySelector('.viewport');
+    var content = piece.querySelector('.scrollcontent');
+    piece.addEventListener('mouseenter', function(){
+      var max = content.scrollHeight - viewport.clientHeight;
+      if(max > 0){
+        content.style.transitionDuration = (max/40) + 's';
+        content.style.transform = 'translateY(-' + max + 'px)';
+      }
+    });
+    piece.addEventListener('mouseleave', function(){
+      content.style.transitionDuration = '0.6s';
+      content.style.transform = 'translateY(0)';
+    });
+  });
+})();
+
+var isDown = false, startX, startScroll, dragged = false;
+var reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+var paused = reduceMotion, resumeTimer = null;
+var SPEED = 34; // px per second
+
+if(reduceMotion && dragHintText){ dragHintText.textContent = 'Drag to browse · hover to read'; }
+
+function pauseAuto(){
+  if(reduceMotion) return;
+  paused = true;
+  if(resumeTimer){ clearTimeout(resumeTimer); resumeTimer = null; }
+  if(dragHintText) dragHintText.textContent = 'Paused · drag to browse';
+}
+function resumeAutoSoon(){
+  if(reduceMotion) return;
+  if(resumeTimer){ clearTimeout(resumeTimer); }
+  resumeTimer = setTimeout(function(){
+    paused = false;
+    if(dragHintText) dragHintText.textContent = 'Auto-scrolling · hover to pause';
+  }, 900);
+}
+
+stripWrap.addEventListener('mouseenter', pauseAuto);
+stripWrap.addEventListener('mouseleave', function(){ if(!isDown) resumeAutoSoon(); });
+stripWrap.addEventListener('touchstart', pauseAuto, {passive:true});
+stripWrap.addEventListener('touchend', resumeAutoSoon, {passive:true});
+
+strip.addEventListener('mousedown', function(e){
+  isDown = true; dragged = false;
+  strip.classList.add('dragging');
+  startX = e.pageX - strip.offsetLeft;
+  startScroll = strip.scrollLeft;
+  pauseAuto();
+});
+window.addEventListener('mouseup', function(){
+  if(!isDown) return;
+  isDown = false;
+  strip.classList.remove('dragging');
+  resumeAutoSoon();
+});
+strip.addEventListener('mousemove', function(e){
+  if(!isDown) return;
+  e.preventDefault();
+  var x = e.pageX - strip.offsetLeft;
+  if(Math.abs(x - startX) > 4) dragged = true;
+  strip.scrollLeft = startScroll - (x - startX) * 1.4;
+});
+
+// Conveyor animation loop
+var lastTs = null;
+function conveyor(ts){
+  if(lastTs === null) lastTs = ts;
+  var dt = (ts - lastTs) / 1000;
+  lastTs = ts;
+  if(!paused && !isDown){
+    strip.scrollLeft += SPEED * dt;
+    var half = strip.scrollWidth / 2;
+    if(strip.scrollLeft >= half){
+      strip.scrollLeft -= half;
+    }
+  }
+  requestAnimationFrame(conveyor);
+}
+requestAnimationFrame(function(ts){
+  // start roughly a third into the strip so it doesn't look stalled at 0 on load
+  lastTs = ts;
+  requestAnimationFrame(conveyor);
+});
+
+// Scroll reveal
+var io = new IntersectionObserver(function(entries){
+  entries.forEach(function(entry){
+    if(entry.isIntersecting){ entry.target.classList.add('in'); io.unobserve(entry.target); }
+  });
+}, {threshold:0.12});
+document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+
+/* ================= CUSTOM CURSOR ================= */
+(function(){
+  var cur = document.getElementById('stampCursor');
+  if(!cur || matchMedia('(hover:none), (pointer:coarse)').matches) return;
+  var x = 0, y = 0;
+  window.addEventListener('mousemove', function(e){
+    x = e.clientX; y = e.clientY;
+    cur.style.transform = 'translate('+x+'px,'+y+'px) translate(-50%,-50%)';
+    cur.classList.add('ready');
+  });
+  var poppers = document.querySelectorAll('a, button, .piece, .faq-q, .tab');
+  poppers.forEach(function(el){
+    el.addEventListener('mouseenter', function(){ cur.classList.add('pop'); });
+    el.addEventListener('mouseleave', function(){ cur.classList.remove('pop'); });
+  });
+})();
+
+/* ================= SPOTLIGHT TRACKING ================= */
+document.querySelectorAll('.spotlit').forEach(function(sec){
+  sec.addEventListener('mousemove', function(e){
+    var r = sec.getBoundingClientRect();
+    sec.style.setProperty('--sx', (e.clientX - r.left) + 'px');
+    sec.style.setProperty('--sy', (e.clientY - r.top) + 'px');
+  });
+});
+
+/* ================= NAV ACTIVE-LINK TRACKING ================= */
+(function(){
+  var navLinks = document.querySelectorAll('.navlinks a');
+  var targets = Array.prototype.map.call(navLinks, function(a){
+    return document.querySelector(a.getAttribute('href'));
+  }).filter(Boolean);
+  if(!targets.length) return;
+  var navIo = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      var id = '#' + entry.target.id;
+      var link = document.querySelector('.navlinks a[href="'+id+'"]');
+      if(!link) return;
+      if(entry.isIntersecting){
+        navLinks.forEach(function(l){ l.classList.remove('current'); });
+        link.classList.add('current');
+      }
+    });
+  }, {rootMargin:'-45% 0px -50% 0px', threshold:0});
+  targets.forEach(function(t){ navIo.observe(t); });
+})();
+
+/* ================= COUNT-UP NUMBERS ================= */
+(function(){
+  var nums = document.querySelectorAll('[data-countup]');
+  var cIo = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(!entry.isIntersecting) return;
+      var el = entry.target;
+      cIo.unobserve(el);
+      var end = parseFloat(el.getAttribute('data-end'));
+      var prefix = el.getAttribute('data-prefix') || '';
+      var suffix = el.getAttribute('data-suffix') || '';
+      var dur = 1100, start = null;
+      function step(ts){
+        if(start === null) start = ts;
+        var p = Math.min((ts - start) / dur, 1);
+        var eased = 1 - Math.pow(1 - p, 3);
+        var val = Math.round(end * eased);
+        el.textContent = prefix + val + suffix;
+        if(p < 1) requestAnimationFrame(step);
+        else el.textContent = prefix + end + suffix;
+      }
+      requestAnimationFrame(step);
+    });
+  }, {threshold:0.4});
+  nums.forEach(function(el){ cIo.observe(el); });
+})();
+
+/* ================= SPLIT-FLAP MANIFEST BOARD ================= */
+(function(){
+  var board = document.getElementById('flapBoard');
+  if(!board) return;
+  var status = board.querySelector('.board-status');
+  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 &.·-".split('');
+  var messages = [
+    "OAK & ASH — CVR +22%",
+    "NORTHFIELD — OPEN RATE 61%",
+    "FERN & CO — ROAS 6.2X",
+    "VESSEL — ROAS 3.2X",
+    "TIDE TABLE — $4.80 PER SEND",
+    "LOOM — CTR +19%"
+  ];
+  var row = document.createElement('div');
+  row.className = 'flap-row';
+  board.insertBefore(row, status);
+
+  function randChar(){ return chars[Math.floor(Math.random()*chars.length)]; }
+
+  function buildFlaps(len){
+    row.innerHTML = '';
+    var flaps = [];
+    for(var i=0;i<len;i++){
+      var f = document.createElement('div');
+      f.className = 'flap blank';
+      var face = document.createElement('div');
+      face.className = 'flap-face';
+      face.textContent = '·';
+      f.appendChild(face);
+      row.appendChild(f);
+      flaps.push({el:f, face:face});
+    }
+    return flaps;
+  }
+
+  function setMessage(msg){
+    var flaps = buildFlaps(msg.length);
+    flaps.forEach(function(flap, i){
+      var target = msg[i];
+      var ticks = 4 + Math.floor(Math.random()*5);
+      var count = 0;
+      var timer = setInterval(function(){
+        count++;
+        flap.el.classList.add('flip');
+        setTimeout(function(){ flap.el.classList.remove('flip'); }, 300);
+        if(count >= ticks){
+          clearInterval(timer);
+          flap.face.textContent = target === ' ' ? '\u00A0' : target;
+          flap.el.classList.remove('blank');
+        } else {
+          flap.face.textContent = randChar();
+        }
+      }, 90);
+    });
+  }
+
+  var idx = 0;
+  setMessage(messages[idx]);
+  setInterval(function(){
+    idx = (idx + 1) % messages.length;
+    setMessage(messages[idx]);
+  }, 4200);
+})();
+
+/* ================= ROUTE PROGRESS LINE ================= */
+(function(){
+  var track = document.getElementById('routeTrack');
+  var progress = document.getElementById('routeProgress');
+  if(!track || !progress) return;
+  var waypoints = track.querySelectorAll('.waypoint');
+
+  var wpIo = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        entry.target.classList.add('active');
+        entry.target.classList.add('done');
+      } else if(entry.boundingClientRect.top > 0){
+        entry.target.classList.remove('active');
+      }
+    });
+  }, {threshold:0.35, rootMargin:'-10% 0px -35% 0px'});
+  waypoints.forEach(function(w){ wpIo.observe(w); });
+
+  function updateProgress(){
+    var r = track.getBoundingClientRect();
+    var vh = window.innerHeight;
+    var total = r.height;
+    var visible = Math.min(Math.max(vh*0.55 - r.top, 0), total);
+    var pct = total > 0 ? (visible/total)*100 : 0;
+    progress.style.height = pct + '%';
+  }
+  window.addEventListener('scroll', updateProgress, {passive:true});
+  window.addEventListener('resize', updateProgress);
+  updateProgress();
+})();
+
+/* ================= MAGNETIC BUTTONS ================= */
+document.querySelectorAll('.magnetic').forEach(function(btn){
+  btn.addEventListener('mousemove', function(e){
+    var r = btn.getBoundingClientRect();
+    var mx = e.clientX - r.left - r.width/2;
+    var my = e.clientY - r.top - r.height/2;
+    btn.style.transform = 'translate('+(mx*0.28)+'px,'+(my*0.35)+'px)';
+  });
+  btn.addEventListener('mouseleave', function(){
+    btn.style.transform = 'translate(0,0)';
+  });
+});
+
+/* ================= LEDGER TILT ================= */
+(function(){
+  var card = document.querySelector('.ledger');
+  if(!card || matchMedia('(hover:none), (pointer:coarse)').matches) return;
+  card.addEventListener('mousemove', function(e){
+    var r = card.getBoundingClientRect();
+    var px = (e.clientX - r.left) / r.width - 0.5;
+    var py = (e.clientY - r.top) / r.height - 0.5;
+    card.style.setProperty('--ry', (px*6) + 'deg');
+    card.style.setProperty('--rx', (py*-6) + 'deg');
+  });
+  card.addEventListener('mouseleave', function(){
+    card.style.setProperty('--ry', '0deg');
+    card.style.setProperty('--rx', '0deg');
+  });
+})();
+</script>
+
+</body>
+</html>
