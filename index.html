@@ -1095,6 +1095,151 @@
     }
   }
 
+
+
+  /* POTENT EMAILS — POTION / LIQUID TEXT EFFECT */
+  .hero-copy h1 .potion-word{
+    position:relative;
+    display:inline-block;
+    font-style:normal;
+    line-height:1;
+    vertical-align:baseline;
+    isolation:isolate;
+  }
+
+  .hero-copy h1 .potion-base,
+  .hero-copy h1 .potion-liquid{
+    display:inline-block;
+    font:inherit;
+    letter-spacing:inherit;
+  }
+
+  .hero-copy h1 .potion-base{
+    position:relative;
+    color:#171526;
+    opacity:0;
+    visibility:hidden;
+  }
+
+  .hero-copy h1 .potion-liquid{
+    position:absolute;
+    inset:0 auto auto 0;
+    color:transparent;
+    background:
+      linear-gradient(
+        180deg,
+        #5536d8 0%,
+        #7440df 32%,
+        #c85bd1 68%,
+        #ef6dbd 100%
+      );
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    transform:translateY(.10em);
+    clip-path:inset(100% 0 0 0);
+    animation:potionFill 1.35s cubic-bezier(.22,.75,.2,1) .2s forwards,
+              potionFloat 4.8s ease-in-out 1.6s infinite;
+    will-change:transform,clip-path;
+  }
+
+  .hero-copy h1 .potion-word::before{
+    content:"";
+    position:absolute;
+    left:-4%;
+    bottom:-.04em;
+    width:108%;
+    height:.13em;
+    border-radius:999px;
+    background:linear-gradient(
+      90deg,
+      rgba(83,54,216,0),
+      rgba(126,65,225,.85),
+      rgba(239,109,189,.75),
+      rgba(83,54,216,0)
+    );
+    filter:blur(7px);
+    opacity:0;
+    transform:scaleX(.55);
+    animation:potionGlow 1.2s ease-out .7s forwards;
+    z-index:-1;
+  }
+
+  .hero-copy h1 .potion-word::after{
+    content:"";
+    position:absolute;
+    top:-.12em;
+    left:-12%;
+    width:9%;
+    height:1.05em;
+    border-radius:50%;
+    background:rgba(255,255,255,.75);
+    filter:blur(5px);
+    transform:skewX(-15deg);
+    opacity:0;
+    pointer-events:none;
+    animation:potionShine 2.8s ease-in-out 1.15s infinite;
+  }
+
+  @keyframes potionFill{
+    0%{
+      clip-path:inset(100% 0 0 0);
+      transform:translateY(.10em);
+    }
+    55%{
+      clip-path:inset(8% 0 0 0);
+    }
+    78%{
+      clip-path:inset(0 0 0 0);
+      transform:translateY(.025em);
+    }
+    100%{
+      clip-path:inset(0 0 0 0);
+      transform:translateY(0);
+    }
+  }
+
+  @keyframes potionFloat{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-.025em);}
+  }
+
+  @keyframes potionGlow{
+    0%{opacity:0;transform:scaleX(.55);}
+    50%{opacity:.9;transform:scaleX(1);}
+    100%{opacity:.25;transform:scaleX(.85);}
+  }
+
+  @keyframes potionShine{
+    0%,25%{
+      left:-12%;
+      opacity:0;
+    }
+    35%{opacity:.75;}
+    65%{
+      left:105%;
+      opacity:0;
+    }
+    100%{
+      left:105%;
+      opacity:0;
+    }
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .hero-copy h1 .potion-liquid{
+      animation:none;
+      clip-path:inset(0 0 0 0);
+      transform:none;
+    }
+
+    .hero-copy h1 .potion-word::before,
+    .hero-copy h1 .potion-word::after{
+      animation:none;
+      opacity:0;
+    }
+  }
+
 </style>
 </head>
 <body>
@@ -1116,7 +1261,10 @@
   <div class="hero-showcase" id="heroShowcase">
     <div class="hero-copy">
       <span class="hero-kicker">Email flows, brewed per brand</span>
-      <h1><span class="gradient-word">Potent emails</span> for<br>brands that<br>want more.</h1>
+      <h1><em class="potion-word">
+  <span class="potion-base">Potent emails</span>
+  <span class="potion-liquid" aria-hidden="true">Potent emails</span>
+</em> for<br>brands that<br>want more.</h1>
       <p>No templates, nothing recycled. Every flow gets brewed from scratch for one brand: yours.</p>
       <a href="#book" class="hero-cta">Book a free call</a>
       <span class="hero-micro">Free discovery call · Straight answers · No hard sell</span>
@@ -1553,6 +1701,46 @@
   const track = document.getElementById('proofTrack');
   track.addEventListener('mouseenter', () => track.style.animationPlayState = 'paused');
   track.addEventListener('mouseleave', () => track.style.animationPlayState = 'running');
+
+  // Potent emails — subtle potion-liquid mouse movement
+  const potionWord = document.querySelector('.potion-word');
+  const potionLiquid = document.querySelector('.potion-liquid');
+
+  if(potionWord && potionLiquid &&
+     window.matchMedia('(prefers-reduced-motion: no-preference)').matches){
+    const heroArea = document.querySelector('.hero-showcase');
+
+    heroArea?.addEventListener('mousemove', (e) => {
+      const rect = heroArea.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - .5;
+      const y = (e.clientY - rect.top) / rect.height - .5;
+
+      potionLiquid.style.filter =
+        `drop-shadow(${x * 2}px ${y * 2}px 0 rgba(255,255,255,.08))`;
+    });
+
+    heroArea?.addEventListener('mouseleave', () => {
+      potionLiquid.style.filter = 'none';
+    });
+  }
+
+  if(potentWord && window.matchMedia('(prefers-reduced-motion: no-preference)').matches){
+    const heroArea = document.querySelector('.hero-showcase');
+
+    heroArea?.addEventListener('mousemove', (e) => {
+      const rect = heroArea.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+
+      potentWord.style.transform =
+        `translate(${x * 5}px, ${y * 3}px)`;
+    });
+
+    heroArea?.addEventListener('mouseleave', () => {
+      potentWord.style.transform = 'translate(0,0)';
+    });
+  }
+
 </script>
 
 </body>
