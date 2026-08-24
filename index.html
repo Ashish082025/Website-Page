@@ -4902,6 +4902,241 @@ header.site-nav .nav-cta:hover::after{
 }
 </style>
 
+
+<style id="retention-calculator-styles">
+.retention-math-section{
+  padding:108px 0 120px;
+  background:#F8F7FB;
+}
+.retention-math-head{
+  margin-bottom:42px;
+}
+.retention-math-head > div{
+  max-width:760px;
+}
+.retention-math-head h2{
+  margin:18px 0 16px;
+  font-family:'Inter',Arial,sans-serif;
+  font-size:clamp(42px,5vw,68px);
+  line-height:.98;
+  font-weight:700;
+  letter-spacing:-.055em;
+  color:#171526;
+}
+.retention-math-head h2 em{
+  color:#7439D8;
+  font-style:normal;
+}
+.retention-math-head p{
+  max-width:610px;
+  font-size:17px;
+  line-height:1.65;
+  color:#706B7D;
+}
+.retention-calculator{
+  background:#111112;
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 1px 2px rgba(0,0,0,.05),0 16px 48px -16px rgba(0,0,0,.24);
+  text-align:left;
+}
+.retention-calculator .calc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;padding:30px 32px 4px}
+.retention-calculator .calc-big{font-size:clamp(38px,5vw,62px);font-weight:600;letter-spacing:-.045em;line-height:1;color:#F7F7F8;font-variant-numeric:tabular-nums}
+.retention-calculator .calc-cap{margin-top:12px;font-size:15px;color:#98989F}
+.retention-calculator .calc-side{text-align:right;font-size:15px;color:#98989F;line-height:1.85}
+.retention-calculator .calc-side b{color:#F7F7F8;font-weight:600}
+.retention-calculator .calc-side .up{color:#7C97FF}
+.retention-calculator svg.plot{width:100%;height:auto}
+.retention-calculator .calc-axis{display:flex;justify-content:space-between;font-size:13px;color:#98989F;padding:0 32px 18px}
+.retention-calculator .calc-body{border-top:1px solid #333338;padding:26px 32px 30px;background:#1C1C1F}
+.retention-calculator .cur-row{display:flex;justify-content:flex-end;margin-bottom:16px}
+.retention-calculator .cur-row label{font-size:13.5px;color:#98989F;display:flex;align-items:center;gap:8px}
+.retention-calculator .cur-row select{background:#111112;border:1px solid #333338;border-radius:8px;color:#F7F7F8;padding:7px 10px;font-size:14px;cursor:pointer}
+.retention-calculator .cur-row select:focus{outline:none;border-color:#7C97FF}
+.retention-calculator .fields{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.retention-calculator .field label{display:block;font-size:13.5px;color:#98989F;margin-bottom:8px}
+.retention-calculator .field .box{display:flex;align-items:center;background:#111112;border:1px solid #333338;border-radius:10px;padding:0 11px;transition:border-color .18s ease,box-shadow .18s ease}
+.retention-calculator .field .box:focus-within{border-color:#7C97FF;box-shadow:0 0 0 3px rgba(124,151,255,.2)}
+.retention-calculator .field .box span{font-size:15px;color:#98989F;flex:none}
+.retention-calculator .field input{width:100%;min-width:0;background:none;border:0;padding:12px 5px;color:#F7F7F8;font-family:Inter,Arial,sans-serif;font-size:16px;font-weight:500;font-variant-numeric:tabular-nums}
+.retention-calculator .field input:focus{outline:none}
+.retention-calculator .field input::-webkit-outer-spin-button,.retention-calculator .field input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.retention-calculator .field input[type=number]{-moz-appearance:textfield;appearance:textfield}
+.retention-calculator .lift{margin-top:22px}
+.retention-calculator .lift-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:11px}
+.retention-calculator .lift-head label{font-size:13.5px;color:#98989F}
+.retention-calculator .lift-head output{font-size:16px;font-weight:600;color:#7C97FF;font-variant-numeric:tabular-nums}
+.retention-calculator input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:24px;background:none;cursor:pointer;margin:0}
+.retention-calculator input[type=range]::-webkit-slider-runnable-track{height:4px;background:#43434A;border-radius:4px}
+.retention-calculator input[type=range]::-moz-range-track{height:4px;background:#43434A;border-radius:4px}
+.retention-calculator input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:0;margin-top:-9px;box-shadow:0 1px 4px rgba(0,0,0,.45)}
+.retention-calculator input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:0;box-shadow:0 1px 4px rgba(0,0,0,.45)}
+.retention-calculator .outs{margin-top:26px;padding-top:22px;border-top:1px solid #333338;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.retention-calculator .outs div span{display:block;font-size:13.5px;color:#98989F;margin-bottom:7px}
+.retention-calculator .outs div b{font-size:20px;font-weight:600;letter-spacing:-.03em;color:#F7F7F8;font-variant-numeric:tabular-nums}
+.retention-calculator .outs div b.hot{color:#7C97FF}
+.retention-calculator .calc-foot{margin-top:20px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
+.retention-calculator .calc-foot code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:#98989F}
+.retention-calculator .calc-foot a{font-size:15px;color:#7C97FF;text-decoration:none;font-weight:500}
+.retention-calculator .calc-foot a:hover{text-decoration:underline}
+.retention-calculator .assume{margin-top:20px;font-size:13.5px;line-height:1.7;color:#98989F}
+.retention-calculator .assume summary{cursor:pointer;color:#7C97FF;list-style:none;font-weight:500}
+.retention-calculator .assume summary::-webkit-details-marker{display:none}
+.retention-calculator .assume p{margin-top:10px}
+@media(max-width:640px){
+  .retention-calculator .fields{grid-template-columns:1fr 1fr}
+}
+@media(max-width:560px){
+  .retention-math-section{padding:80px 0}
+  .retention-math-head{margin-bottom:32px}
+  .retention-math-head h2{font-size:clamp(38px,11vw,56px)}
+  .retention-calculator .calc-side{text-align:left}
+  .retention-calculator .calc-head{padding:24px 22px 4px}
+  .retention-calculator .calc-body{padding:22px 22px 26px}
+  .retention-calculator .calc-axis{padding:0 22px 18px}
+  .retention-calculator .outs{grid-template-columns:1fr 1fr}
+}
+@media(max-width:460px){
+  .retention-calculator .fields{grid-template-columns:1fr}
+}
+</style>
+
+
+<style id="retention-calculator-compact">
+/* Compact retention calculator */
+.retention-calculator{
+  max-width:900px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.retention-calculator .calc-head{
+  padding:22px 24px 2px;
+  gap:14px;
+}
+.retention-calculator .calc-big{
+  font-size:clamp(34px,4vw,50px);
+}
+.retention-calculator .calc-cap{
+  margin-top:8px;
+  font-size:13px;
+}
+.retention-calculator .calc-side{
+  font-size:13px;
+  line-height:1.65;
+}
+.retention-calculator svg.plot{
+  height:170px;
+}
+.retention-calculator .calc-axis{
+  font-size:11px;
+  padding:0 24px 14px;
+}
+.retention-calculator .calc-body{
+  padding:20px 24px 24px;
+}
+.retention-calculator .cur-row{
+  margin-bottom:12px;
+}
+.retention-calculator .cur-row label{
+  font-size:12px;
+}
+.retention-calculator .cur-row select{
+  padding:6px 9px;
+  font-size:12px;
+}
+.retention-calculator .fields{
+  gap:10px;
+}
+.retention-calculator .field label{
+  font-size:12px;
+  margin-bottom:6px;
+}
+.retention-calculator .field .box{
+  border-radius:8px;
+  padding:0 9px;
+}
+.retention-calculator .field .box span{
+  font-size:13px;
+}
+.retention-calculator .field input{
+  padding:9px 4px;
+  font-size:14px;
+}
+.retention-calculator .lift{
+  margin-top:16px;
+}
+.retention-calculator .lift-head{
+  margin-bottom:7px;
+}
+.retention-calculator .lift-head label{
+  font-size:12px;
+}
+.retention-calculator .lift-head output{
+  font-size:13px;
+}
+.retention-calculator input[type=range]{
+  height:20px;
+}
+.retention-calculator input[type=range]::-webkit-slider-thumb{
+  width:18px;
+  height:18px;
+  margin-top:-7px;
+}
+.retention-calculator input[type=range]::-moz-range-thumb{
+  width:18px;
+  height:18px;
+}
+.retention-calculator .outs{
+  margin-top:18px;
+  padding-top:16px;
+  gap:14px;
+}
+.retention-calculator .outs div span{
+  font-size:11px;
+  margin-bottom:5px;
+}
+.retention-calculator .outs div b{
+  font-size:17px;
+}
+.retention-calculator .calc-foot{
+  margin-top:14px;
+  gap:10px;
+}
+.retention-calculator .calc-foot code{
+  font-size:10px;
+}
+.retention-calculator .calc-foot a{
+  font-size:12px;
+}
+.retention-calculator .assume{
+  margin-top:14px;
+  font-size:11px;
+  line-height:1.55;
+}
+
+@media(max-width:900px){
+  .retention-calculator{
+    max-width:none;
+  }
+}
+
+@media(max-width:560px){
+  .retention-calculator .calc-head{
+    padding:20px 18px 2px;
+  }
+  .retention-calculator svg.plot{
+    height:145px;
+  }
+  .retention-calculator .calc-axis{
+    padding:0 18px 12px;
+  }
+  .retention-calculator .calc-body{
+    padding:18px 18px 22px;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -4911,6 +5146,7 @@ header.site-nav .nav-cta:hover::after{
     <nav class="nav-links">
       <a href="#offer">What gets built</a>
       <a href="#work">Work</a>
+      <a href="#calculator">Calculator</a>
       <a href="#process">Process</a>
       <a href="#faq">FAQ</a>
     </nav>
@@ -5028,12 +5264,80 @@ header.site-nav .nav-cta:hover::after{
 </section>
 
 
+
+<section id="calculator" class="retention-math-section">
+  <div class="retention-math-head wrap">
+    <div>
+      <span class="eyebrow"><span class="eyebrow-num">03</span><span class="eyebrow-label">RETENTION MATH</span></span>
+      <h2>See what your <em>repeat customers</em> are worth.</h2>
+      <p>Put in your numbers. See the gross profit you could unlock by turning more first-time buyers into repeat customers.</p>
+    </div>
+  </div>
+  <div class="wrap"><div class="retention-calculator rise" id="retentionCalculator">
+      <div class="calc-head">
+        <div>
+          <p class="calc-big" id="rBig" aria-live="polite">$104,880</p>
+          <p class="calc-cap">More gross profit a year, from customers you already won.</p>
+        </div>
+        <p class="calc-side">Repeat rate<br>
+          now <b id="rNow">24%</b><br>
+          after <b class="up" id="rNew">32%</b></p>
+      </div>
+      <svg class="plot" viewBox="0 0 640 210" aria-hidden="true" focusable="false">
+        <g stroke="#333338" stroke-width="1">
+          <line x1="28" y1="30" x2="612" y2="30"/><line x1="28" y1="76" x2="612" y2="76"/>
+          <line x1="28" y1="122" x2="612" y2="122"/><line x1="28" y1="168" x2="612" y2="168"/></g>
+        <g id="rbars"></g>
+      </svg>
+      <div class="calc-axis"><span>Order 1</span><span>Order 2</span><span>Order 3</span><span>Order 4</span></div>
+
+      <div class="calc-body">
+        <div class="cur-row"><label for="cur">Currency
+          <select id="cur"><option>USD</option><option>GBP</option><option>EUR</option><option>INR</option>
+            <option>AUD</option><option>CAD</option><option>SGD</option><option>AED</option>
+            <option>SEK</option><option>BRL</option><option>ZAR</option><option>JPY</option></select>
+        </label></div>
+        <div class="fields">
+          <div class="field"><label for="rCust">New customers / mo</label>
+            <div class="box"><input id="rCust" type="number" inputmode="numeric" value="2500" min="0" step="100"></div></div>
+          <div class="field"><label for="rAov">Average order</label>
+            <div class="box"><span data-cur>$</span><input id="rAov" type="number" inputmode="decimal" value="92" min="0" step="1"></div></div>
+          <div class="field"><label for="rMar">Gross margin</label>
+            <div class="box"><input id="rMar" type="number" inputmode="decimal" value="60" min="0" max="100" step="1"><span>%</span></div></div>
+          <div class="field"><label for="rRate">Repeat rate now</label>
+            <div class="box"><input id="rRate" type="number" inputmode="decimal" value="24" min="0" max="100" step="1"><span>%</span></div></div>
+        </div>
+        <div class="lift">
+          <div class="lift-head"><label for="rLift">Points added</label>
+            <output id="rLiftOut" for="rLift">+8 points</output></div>
+          <input id="rLift" type="range" min="0" max="20" step="1" value="8">
+        </div>
+        <div class="outs">
+          <div><span>Over three years</span><b id="rThree">$369,840</b></div>
+          <div><span>Every month you wait</span><b class="hot" id="rMonth">$11,040</b></div>
+          <div><span>Every quarter you wait</span><b class="hot" id="rQtr">$33,120</b></div>
+        </div>
+        <div class="calc-foot">
+          <code>gain = new customers &times; points added &times; order value &times; margin</code>
+          <a href="#book" id="rSend">Book a free call &rarr;</a>
+        </div>
+        <details class="assume"><summary>What this assumes</summary>
+          <p>Each customer converted from one-time to repeat buys exactly once more in twelve months.
+          That is deliberately low: real repeat buyers usually order two or three times. Figures are
+          gross profit, not revenue, and exclude platform and sending costs. Traffic and acquisition
+          spend are held flat, so none of this depends on buying more customers.</p>
+        </details>
+      </div>
+    </div></div>
+</section>
+
+
 <section class="on-dark" id="process">
   <div class="wrap">
     <div class="process-grid">
       <div class="reveal">
         <div class="process-head">
-          <span class="eyebrow"><span class="eyebrow-num">03</span><span class="eyebrow-label">HOW IT WORKS</span></span>
+          <span class="eyebrow"><span class="eyebrow-num">04</span><span class="eyebrow-label">HOW IT WORKS</span></span>
           <h2>Four stages. <em>Ninety days.</em></h2>
         </div>
 
@@ -5075,35 +5379,6 @@ header.site-nav .nav-cta:hover::after{
             <span aria-hidden="true">→</span>
           </a>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="founder">
-  <div class="wrap">
-    <span class="eyebrow"><span class="eyebrow-num">04</span><span class="eyebrow-label">BEHIND SHUBH</span></span>
-
-    <div class="founder-grid reveal" style="margin-top:24px;">
-      <div class="founder-avatar founder-photo-placeholder" aria-label="Shubham Chinchalkar">
-        SC
-      </div>
-
-      <div class="founder-text">
-        <h2>Hello <span class="wave-emoji" aria-label="waving hand">👋</span>,<br>I'm <em>Shubham Chinchalkar.</em></h2>
-
-        <p>
-          I started Shubh with one belief: the inbox deserves better design.
-          Every flow that leaves our hands is planned, written, and polished
-          like it’s headed for a billboard.
-        </p>
-
-        <p>
-          We stay deliberately small and take on a few brands at a time.
-          It keeps the work sharp and your brand front of mind.
-        </p>
-
-        <div class="founder-sig">Shubham Chinchalkar<br><span>Founder, Shubh</span></div>
       </div>
     </div>
   </div>
@@ -5154,7 +5429,7 @@ header.site-nav .nav-cta:hover::after{
 
       <div class="book-left reveal">
         <span class="eyebrow">
-          <span class="eyebrow-num">06</span>
+          <span class="eyebrow-num">07</span>
           <span class="eyebrow-label">BOOK A CALL</span>
         </span>
 
@@ -5446,6 +5721,7 @@ header.site-nav .nav-cta:hover::after{
     let scrollLeft = 0;
 
     gallery.addEventListener('mousedown', (e) => {
+      if (e.target.closest('.work-image-scroll-viewport')) return;
       isDown = true;
       gallery.classList.add('dragging');
       startX = e.pageX - gallery.getBoundingClientRect().left;
@@ -5463,6 +5739,7 @@ header.site-nav .nav-cta:hover::after{
     });
 
     gallery.addEventListener('mousemove', (e) => {
+      if (e.target.closest('.work-image-scroll-viewport')) return;
       if(!isDown) return;
       e.preventDefault();
       const x = e.pageX - gallery.getBoundingClientRect().left;
@@ -5470,6 +5747,7 @@ header.site-nav .nav-cta:hover::after{
     });
 
     gallery.addEventListener('wheel', (e) => {
+      if (e.target.closest('.work-image-scroll-viewport')) return;
       if(Math.abs(e.deltaY) > Math.abs(e.deltaX)){
         e.preventDefault();
         gallery.scrollLeft += e.deltaY;
@@ -5664,11 +5942,11 @@ header.site-nav .nav-cta:hover::after{
       viewport.addEventListener('wheel', (e) => {
         if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
 
-        const didScroll = scrollImage(e.deltaY);
-        if (didScroll) {
-          e.preventDefault();
-          e.stopPropagation();
-        }
+        // Always keep vertical wheel input inside this image.
+        // Do not let the horizontal gallery or page take over.
+        e.preventDefault();
+        e.stopPropagation();
+        scrollImage(e.deltaY);
       }, { passive:false });
 
       // Touch support for phones/tablets.
@@ -5973,7 +6251,7 @@ header.site-nav .nav-cta:hover::after{
 })();
 </script>
 
-<script id="smooth-scroll-enhancement-js">\n(function(){\n  'use strict';\n  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;\n\n  // Scroll progress bar\n  const progress=document.createElement('div');\n  progress.id='scrollProgress';\n  document.body.appendChild(progress);\n  let ticking=false;\n  function updateProgress(){\n    const max=document.documentElement.scrollHeight-window.innerHeight;\n    const pct=max>0 ? window.scrollY/max : 0;\n    progress.style.width=(Math.max(0,Math.min(1,pct))*100)+'%';\n    ticking=false;\n  }\n  window.addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(updateProgress);ticking=true;}},{passive:true});\n  updateProgress();\n\n  // Smooth anchor scrolling with sticky-header offset\n  document.addEventListener('click',function(e){\n    const a=e.target.closest('a[href^="#"]');\n    if(!a) return;\n    const href=a.getAttribute('href');\n    if(!href || href==='#') return;\n    const target=document.querySelector(href);\n    if(!target) return;\n    e.preventDefault();\n    const offset=window.innerWidth<=720 ? 72 : 88;\n    const y=target.getBoundingClientRect().top+window.scrollY-offset;\n    if(reduce){window.scrollTo(0,y);}\n    else{window.scrollTo({top:y,behavior:'smooth'});}\n    history.pushState(null,'',href);\n  });\n\n  // IntersectionObserver reveal — only applies to content, not the hero/card animations\n  if(!reduce && 'IntersectionObserver' in window){\n    const selectors=['#work .work-head','#work .work-card','#founder .founder-grid','#faq .faq-head','#faq .faq-list','#book .book-grid','.offer-head','.offer-card','.offer-close','.closing-line'];\n    const els=document.querySelectorAll(selectors.join(','));\n    els.forEach((el,i)=>{\n      el.classList.add('smooth-reveal');\n      el.style.transitionDelay=Math.min((i%6)*.055,.275)+'s';\n    });\n    const io=new IntersectionObserver((entries,obs)=>{\n      entries.forEach(entry=>{\n        if(entry.isIntersecting){entry.target.classList.add('revealed');obs.unobserve(entry.target);}\n      });\n    },{threshold:.12,rootMargin:'0px 0px -8% 0px'});\n    els.forEach(el=>io.observe(el));\n  }\n\n  // Smooth horizontal wheel scrolling for the portfolio gallery\n  const gallery=document.querySelector('#work .gallery');\n  if(gallery){\n    gallery.addEventListener('wheel',function(e){\n      if(Math.abs(e.deltaY)<=Math.abs(e.deltaX)) return;\n      const canLeft=gallery.scrollLeft>0;\n      const canRight=gallery.scrollLeft+gallery.clientWidth<gallery.scrollWidth-1;\n      if((e.deltaY<0 && canLeft)||(e.deltaY>0 && canRight)){\n        e.preventDefault();\n        gallery.scrollBy({left:e.deltaY*0.9,behavior:reduce?'auto':'smooth'});\n      }\n    },{passive:false});\n  }\n\n  // Keep browser back/forward anchor navigation smooth\n  window.addEventListener('popstate',function(){\n    const target=document.querySelector(location.hash);\n    if(!target)return;\n    const offset=window.innerWidth<=720 ? 72 : 88;\n    window.scrollTo({top:target.getBoundingClientRect().top+window.scrollY-offset,behavior:reduce?'auto':'smooth'});\n  });\n})();\n</script>
+<script id="smooth-scroll-enhancement-js">\n(function(){\n  'use strict';\n  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;\n\n  // Scroll progress bar\n  const progress=document.createElement('div');\n  progress.id='scrollProgress';\n  document.body.appendChild(progress);\n  let ticking=false;\n  function updateProgress(){\n    const max=document.documentElement.scrollHeight-window.innerHeight;\n    const pct=max>0 ? window.scrollY/max : 0;\n    progress.style.width=(Math.max(0,Math.min(1,pct))*100)+'%';\n    ticking=false;\n  }\n  window.addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(updateProgress);ticking=true;}},{passive:true});\n  updateProgress();\n\n  // Smooth anchor scrolling with sticky-header offset\n  document.addEventListener('click',function(e){\n    const a=e.target.closest('a[href^="#"]');\n    if(!a) return;\n    const href=a.getAttribute('href');\n    if(!href || href==='#') return;\n    const target=document.querySelector(href);\n    if(!target) return;\n    e.preventDefault();\n    const offset=window.innerWidth<=720 ? 72 : 88;\n    const y=target.getBoundingClientRect().top+window.scrollY-offset;\n    if(reduce){window.scrollTo(0,y);}\n    else{window.scrollTo({top:y,behavior:'smooth'});}\n    history.pushState(null,'',href);\n  });\n\n  // IntersectionObserver reveal — only applies to content, not the hero/card animations\n  if(!reduce && 'IntersectionObserver' in window){\n    const selectors=['#work .work-head','#work .work-card','#founder .founder-grid','#faq .faq-head','#faq .faq-list','#book .book-grid','.offer-head','.offer-card','.offer-close','.closing-line'];\n    const els=document.querySelectorAll(selectors.join(','));\n    els.forEach((el,i)=>{\n      el.classList.add('smooth-reveal');\n      el.style.transitionDelay=Math.min((i%6)*.055,.275)+'s';\n    });\n    const io=new IntersectionObserver((entries,obs)=>{\n      entries.forEach(entry=>{\n        if(entry.isIntersecting){entry.target.classList.add('revealed');obs.unobserve(entry.target);}\n      });\n    },{threshold:.12,rootMargin:'0px 0px -8% 0px'});\n    els.forEach(el=>io.observe(el));\n  }\n\n  // Smooth horizontal wheel scrolling for the portfolio gallery\n  const gallery=document.querySelector('#work .gallery');\n  if(gallery){\n    gallery.addEventListener('wheel',function(e){\n      if (e.target.closest('.work-image-scroll-viewport')) return;\n      if(Math.abs(e.deltaY)<=Math.abs(e.deltaX)) return;\n      const canLeft=gallery.scrollLeft>0;\n      const canRight=gallery.scrollLeft+gallery.clientWidth<gallery.scrollWidth-1;\n      if((e.deltaY<0 && canLeft)||(e.deltaY>0 && canRight)){\n        e.preventDefault();\n        gallery.scrollBy({left:e.deltaY*0.9,behavior:reduce?'auto':'smooth'});\n      }\n    },{passive:false});\n  }\n\n  // Keep browser back/forward anchor navigation smooth\n  window.addEventListener('popstate',function(){\n    const target=document.querySelector(location.hash);\n    if(!target)return;\n    const offset=window.innerWidth<=720 ? 72 : 88;\n    window.scrollTo({top:target.getBoundingClientRect().top+window.scrollY-offset,behavior:reduce?'auto':'smooth'});\n  });\n})();\n</script>
 
 
 <script id="premium-interactive-effects-js">
@@ -6300,5 +6578,95 @@ header.site-nav .nav-cta:hover::after{
 })();
 </script>
 
+<script id="retention-calculator-script">
+(function(){
+  "use strict";
+
+  var root = document.getElementById('retentionCalculator');
+  if(!root) return;
+
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $ = function(id){ return root.querySelector('#'+id); };
+  function num(el, fb){ var v=parseFloat(el.value); return (isFinite(v)&&v>=0)?v:fb; }
+
+  var CUR = {
+    USD:['en-US','USD','$'], GBP:['en-GB','GBP','£'], EUR:['de-DE','EUR','€'],
+    INR:['en-IN','INR','₹'], AUD:['en-AU','AUD','A$'], CAD:['en-CA','CAD','C$'],
+    SGD:['en-SG','SGD','S$'], AED:['en-AE','AED','AED'], SEK:['sv-SE','SEK','kr'],
+    BRL:['pt-BR','BRL','R$'], ZAR:['en-ZA','ZAR','R'], JPY:['ja-JP','JPY','¥']
+  };
+  var curCode='USD', fmt0;
+  function guessCur(){
+    try{
+      var l=navigator.language||'en-US';
+      var m={GB:'GBP',IN:'INR',AU:'AUD',CA:'CAD',SG:'SGD',AE:'AED',SE:'SEK',
+             BR:'BRL',ZA:'ZAR',JP:'JPY',DE:'EUR',FR:'EUR',ES:'EUR',IT:'EUR',NL:'EUR',IE:'EUR'};
+      return m[l.split('-')[1]]||'USD';
+    }catch(e){return 'USD';}
+  }
+  function setCur(code){
+    curCode=CUR[code]?code:'USD';
+    var c=CUR[curCode];
+    var zeroDp=(curCode==='JPY'||curCode==='INR');
+    fmt0=new Intl.NumberFormat(c[0],{style:'currency',currency:c[1],maximumFractionDigits:0});
+    root.querySelectorAll('[data-cur]').forEach(function(el){el.textContent=c[2];});
+  }
+
+  var EFFECTIVE=9.5;
+  var rCust=$('rCust'), rAov=$('rAov'), rMar=$('rMar'), rRate=$('rRate'), rLift=$('rLift');
+  var animId=null, shown=0;
+
+  function drawBars(base,pts){
+    var g=$('rbars'), out='', BW=86, GAP=62, X=70, BASE=168;
+    var cohort=[100,base,base*.55,base*.32];
+    var after=[100,base+pts,(base+pts)*.62,(base+pts)*.4];
+    for(var i=0;i<4;i++){
+      var h1=Math.max(2,cohort[i]/100*126), h2=Math.max(2,after[i]/100*126);
+      var x=X+i*(BW+GAP);
+      out+='<rect x="'+x+'" y="'+(BASE-h1)+'" width="'+(BW/2-3)+'" height="'+h1+'" rx="3" fill="#43434A"/>';
+      out+='<rect x="'+(x+BW/2)+'" y="'+(BASE-h2)+'" width="'+(BW/2-3)+'" height="'+h2+'" rx="3" fill="#7C97FF"/>';
+    }
+    g.innerHTML=out;
+  }
+
+  function countTo(t){
+    if(animId){cancelAnimationFrame(animId);animId=null;}
+    if(reduce||Math.abs(t-shown)<1){shown=t;$('rBig').textContent=fmt0.format(t);return;}
+    var from=shown,start=null;
+    function tick(ts){
+      if(start===null)start=ts;
+      var p=Math.min(1,(ts-start)/420),e=1-Math.pow(1-p,3);
+      shown=from+(t-from)*e;
+      $('rBig').textContent=fmt0.format(shown);
+      if(p<1){animId=requestAnimationFrame(tick);}
+      else{shown=t;animId=null;$('rBig').textContent=fmt0.format(t);}
+    }
+    animId=requestAnimationFrame(tick);
+  }
+
+  function recalc(){
+    var n=num(rCust,0), a=num(rAov,0), m=num(rMar,0)/100, base=num(rRate,0), pts=num(rLift,8);
+    if(base+pts>100) pts=Math.max(0,100-base);
+    var monthlyGain=n*a*m*(pts/100);
+    var yearOne=monthlyGain*EFFECTIVE;
+    var threeYears=yearOne+monthlyGain*24;
+    $('rNow').textContent=Math.round(base)+'%';
+    $('rNew').textContent=Math.round(base+pts)+'%';
+    $('rLiftOut').textContent='+'+Math.round(pts)+' points';
+    $('rThree').textContent=fmt0.format(threeYears);
+    $('rMonth').textContent=fmt0.format(monthlyGain);
+    $('rQtr').textContent=fmt0.format(monthlyGain*3);
+    countTo(yearOne);
+    drawBars(base,pts);
+  }
+
+  [rCust,rAov,rMar,rRate,rLift].forEach(function(el){el.addEventListener('input',recalc);});
+  var cur=root.querySelector('#cur');
+  cur.addEventListener('change',function(){setCur(this.value);shown=0;recalc();});
+  cur.value=guessCur();
+  setCur(cur.value);
+  recalc();
+})();
+</script>
 </body>
 </html>
